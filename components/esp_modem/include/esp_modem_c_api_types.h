@@ -15,7 +15,6 @@
 #pragma once
 
 #include "esp_modem_config.h"
-#include "esp_netif.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,11 +22,7 @@ extern "C" {
 
 typedef struct esp_modem_dce_wrap esp_modem_dce_t;
 
-typedef struct esp_modem_PdpContext_t {
-    size_t context_id;
-    const char *protocol_type;
-    const char *apn;
-} esp_modem_PdpContext_t;
+struct PdpContext;
 
 /**
  * @defgroup ESP_MODEM_C_API ESP_MODEM C API

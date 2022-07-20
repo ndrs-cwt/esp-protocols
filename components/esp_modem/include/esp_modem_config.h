@@ -110,10 +110,8 @@ struct esp_modem_dte_config {
             .flow_control = ESP_MODEM_FLOW_CONTROL_NONE,\
             .source_clk = UART_SCLK_APB,            \
             .baud_rate = 115200,                    \
-            .tx_io_num = 25,                        \
+            .tx_io_num = 27,                        \
             .rx_io_num = 26,                        \
-            .rts_io_num = 27,                       \
-            .cts_io_num = 23,                       \
             .rx_buffer_size = 4096,                 \
             .tx_buffer_size = 512,                  \
             .event_queue_size = 30,                 \
