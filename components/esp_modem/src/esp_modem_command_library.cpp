@@ -228,7 +228,7 @@ command_result set_flow_control(CommandableIf *t, int dce_flow, int dte_flow)
     return generic_command_common(t, "AT+IFC=" + std::to_string(dce_flow) + ", " + std::to_string(dte_flow) + "\r");
 }
 
-command_result get_operator_name(CommandableIf *t, std::string &operator_name, int &act)
+command_result get_operator_name(CommandableIf *t, std::string &operator_name)
 {
     ESP_LOGV(TAG, "%s", __func__ );
     std::string_view out;
@@ -239,19 +239,9 @@ command_result get_operator_name(CommandableIf *t, std::string &operator_name, i
     auto pos = out.find("+COPS");
     auto property = 0;
     while (pos != std::string::npos) {
-        // Looking for: +COPS: <mode>[, <format>[, <oper>[, <act>]]]
+        // Looking for: +COPS: <mode>[, <format>[, <oper>]]
         if (property++ == 2) {  // operator name is after second comma (as a 3rd property of COPS string)
             operator_name = out.substr(++pos);
-            auto additional_comma = operator_name.find(',');    // check for the optional ACT
-            if (additional_comma != std::string::npos && std::from_chars(operator_name.data() + additional_comma + 1,operator_name.data() + operator_name.length(), act).ec != std::errc::invalid_argument) {
-                operator_name = operator_name.substr(0, additional_comma);
-            }
-            // and strip quotes if present
-            auto quote1 = operator_name.find('"');
-            auto quote2 = operator_name.rfind('"');
-            if (quote1 != std::string::npos && quote2 != std::string::npos) {
-                operator_name = operator_name.substr(quote1+1, quote2-1);
-            }
             return command_result::OK;
         }
         pos = out.find(',', ++pos);
@@ -418,6 +408,39 @@ command_result get_signal_quality(CommandableIf *t, int &rssi, int &ber)
     }
     if (std::from_chars(out.data() + ber_pos + 1, out.data() + out.size(), ber).ec == std::errc::invalid_argument) {
         return command_result::FAIL;
+    }
+    return command_result::OK;
+}
+
+command_result get_position(CommandableIf *t, float &latitude, char &NS, float &longtitude, char &EW){
+    ESP_LOGV(TAG, "%s", __func__ );
+    std::string_view out;
+    auto ret = generic_get_string(t, "AT+CGPSINFO\r", out);
+    if (ret != command_result::OK) {
+        return ret;
+    }
+    //char ns,ew;
+    sscanf(out.data(),"+CGPSINFO:%f,%c,%f,%c", &latitude, &NS, &longtitude, &EW);
+    return command_result::OK;
+}
+
+command_result start_gps(CommandableIf *t){
+    ESP_LOGV(TAG, "%s", __func__ );
+    std::string_view out;
+    auto ret = generic_get_string(t, "AT+CGPS=1\r", out);
+    if (ret != command_result::OK) {
+        return ret;
+    }
+    return command_result::OK;
+}
+
+command_result gps_report(CommandableIf *t){
+    ESP_LOGV(TAG, "%s", __func__ );
+    std::string_view out;
+    auto ret = generic_get_string(t, "AT+CGPSINFOCFG=5,2\r", out);
+    ESP_LOGI(TAG, "%s", out.data());
+    if (ret != command_result::OK) {
+        return ret;
     }
     return command_result::OK;
 }

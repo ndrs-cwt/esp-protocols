@@ -28,6 +28,8 @@
 #define BOOL_IN(param, name) const bool  _ARG(param, name)
 #define BOOL_OUT(param, name) bool&  _ARG(param, name)
 #define INT_OUT(param, name) int&  _ARG(param, name)
+#define FLOAT_OUT(param, name) float&  _ARG(param, name)
+#define CHAR_OUT(param, name) char&  _ARG(param, name)
 #define INTEGER_LIST_IN(param, name) const int* _ARG(param, name)
 
 #define STRUCT_OUT(struct_name, p1)  struct_name& p1
@@ -38,7 +40,7 @@
 #define BOOL_OUT(param, name) bool* _ARG(param, name)
 #define INT_OUT(param, name) int* _ARG(param, name)
 #define INTEGER_LIST_IN(param, name) const int* _ARG(param, name)
-#define STRUCT_OUT(struct_name, p1)  esp_modem_ ## struct_name ## _t* p1
+#define STRUCT_OUT(struct_name, p1)  struct struct_name* p1
 #endif
 
 #define DECLARE_ALL_COMMAND_APIS(...) \
@@ -50,10 +52,9 @@ ESP_MODEM_DECLARE_DCE_COMMAND(sync, command_result, 0) \
 /**
  * @brief Reads the operator name
  * @param[out] operator name
- * @param[out] access technology
  * @return OK, FAIL or TIMEOUT
  */ \
-ESP_MODEM_DECLARE_DCE_COMMAND(get_operator_name, command_result, 2, STRING_OUT(p1, name), INT_OUT(p2, act)) \
+ESP_MODEM_DECLARE_DCE_COMMAND(get_operator_name, command_result, 1, STRING_OUT(p1, name)) \
     \
 /**
  * @brief Stores current user profile
@@ -98,7 +99,7 @@ ESP_MODEM_DECLARE_DCE_COMMAND(set_echo, command_result, 1, BOOL_IN(p1, echo_on))
 ESP_MODEM_DECLARE_DCE_COMMAND(sms_txt_mode, command_result, 1, BOOL_IN(p1, txt)) \
     \
 /**
- * @brief Sets the default (GSM) character set
+ * @brief Sets the default (GSM) charater set
  * @return OK, FAIL or TIMEOUT
  */ \
 ESP_MODEM_DECLARE_DCE_COMMAND(sms_character_set, command_result, 0) \
@@ -172,9 +173,27 @@ ESP_MODEM_DECLARE_DCE_COMMAND(set_data_mode, command_result, 0) \
 ESP_MODEM_DECLARE_DCE_COMMAND(get_signal_quality, command_result, 2, INT_OUT(p1, rssi), INT_OUT(p2, ber)) \
     \
 /**
- * @brief Sets HW control flow
- * @param[in] dce_flow 0=none, 2=RTS hw flow control of DCE
- * @param[in] dte_flow 0=none, 2=CTS hw flow control of DTE
+ * @brief Get Signal quality
+ * @param[out] rssi signal strength indication
+ * @param[out] ber channel bit error rate
+ * @return OK, FAIL or TIMEOUT
+ */ \
+ESP_MODEM_DECLARE_DCE_COMMAND(get_position, command_result, 4, FLOAT_OUT(p1, latitude), CHAR_OUT(p2, NS), FLOAT_OUT(p3, longtitude), CHAR_OUT(p4, EW)) \
+    \
+/**
+ * @brief Get Position
+ * @return OK, FAIL or TIMEOUT
+ */ \
+ESP_MODEM_DECLARE_DCE_COMMAND(start_gps, command_result, 0) \
+    \
+/**
+ * @brief Start GPS Session
+ * @return OK, FAIL or TIMEOUT
+ */ \
+ESP_MODEM_DECLARE_DCE_COMMAND(gps_report, command_result, 0) \
+    \
+/**
+ * @brief Start GPS Session
  * @return OK, FAIL or TIMEOUT
  */ \
 ESP_MODEM_DECLARE_DCE_COMMAND(set_flow_control, command_result, 2, INT_IN(p1, dce_flow), INT_IN(p2, dte_flow)) \
